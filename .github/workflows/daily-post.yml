@@ -1,0 +1,26 @@
+name: Daily Instagram Post
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 오전 9시 KST (UTC 0시)
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install anthropic requests pillow
+
+      - name: Generate and post content
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: python post.py
