@@ -35,7 +35,7 @@ def generate_content():
     topic = random.choice(TOPICS)
     use_character = random.random() < 0.2  # 20% 확률로 캐릭터 변주
 
-    prompt = f"""인스타그램 계정 babitalk.official 스타일로 2030 자기관리에 관심 있는 여성을 타겟으로 한 콘텐츠를 만들어주세요.
+    prompt = f"""인스타그램 계정 babitalk.official 스타일로 2030 자기관리에 관심 있는 남성을 타겟으로 한 콘텐츠를 만들어주세요.
 
 주제: {topic['type']} - {topic['detail']}
 스타일: {'캐릭터 밈 (캐릭터 표정/상황으로 공감 유발)' if use_character else '강아지/동물 밈 짤 스타일 (귀여운 짤 + 공감 후킹 문구)'}
