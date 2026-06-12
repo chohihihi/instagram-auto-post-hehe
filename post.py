@@ -45,34 +45,43 @@ def generate_content():
 
 주제: {topic['type']} - {topic['detail']}
 
---- 후킹 문구 스타일 (바비톡 썸네일 참고) ---
-- 궁금증/반전/공감을 유발하는 질문형
-- "써마지 받기 전, 왜 물부터 마셔야 할까?"
-- "실리프팅, 다 녹으면 전보다 더 처질까?"
-- "필터랑 실물 갭 크다는 말 당신의 반응은?"
-- "유형별 시술을 대하는 속마음, 번역해 봤더니..."
+--- 후킹 문구 스타일 (바비톡·강남언니 썸네일 참고, 남성 버전) ---
+절대 규칙:
+- 첫줄은 "상황/공감/의심" → 둘째줄은 "반전/폭로/해답"의 구조
+- 독자가 "어? 나 얘기하는 거 아냐?"라고 느끼게
+- 숫자·괄호·감탄사 적극 활용
+남성 후킹 예시:
+- "등 면도 매일 해도 / 3일이면 다시 올라온다?" → "레이저 제모 현실 공개"
+- "헬스 6개월 했는데 / 왜 아직도 뱃살이야?" → "운동 전 이것부터 고쳐"
+- "세안 열심히 하는데 / 왜 모공이 더 커지지?" → "피부과가 말 안 해주는 것"
+- "피부과 갔더니 / 보톡스 추천받은 20대 남자" → "진짜로 맞아도 될까?"
 
---- 캡션 스타일 (바비톡 + 뉴닉 참고) ---
-- 이모지를 문장 앞에 붙이는 스타일 (💉🔥💧✨🧬)
+--- 캡션 스타일 (바비톡 + 강남언니 + 뉴닉 참고) ---
+- 이모지를 문장 앞에 붙이는 스타일 (💉🔥💧✨🧬💪🧴)
 - 어렵지 않게 정보를 풀어쓰는 뉴닉체 (예: "~거든요", "~이에요", "~한다는 사실!")
 - 마지막에 행동 유도 ("저장해두세요 🔖", "알고 계셨나요?")
 - 바비톡 예시 캡션:
-  "💉 써마지·울쎄라 같은 고주파 리프팅은 피부 속 깊은 곳에 열에너지를 전달해 조직 수축을 일으켜요
-  피부 속 물 분자들이 고주파 에너지에 반응해 열이 만들어지고, 이 열에너지가 리프팅 효과를 주는 방식이에요 🔥
-  고주파 리프팅 시술 전에는 충분한 수분 섭취와 보습 관리, 잊지 마세요!"
+  "💉 써마지·울쎄라 같은 고주파 리프팅은 피부 속 깊은 곳에 열에너지를 전달해요
+  🔥 이 열에너지가 리프팅 효과를 주는 방식인데요, 미리 알면 훨씬 똑똑하게 받을 수 있어요
+  💧 시술 전 충분한 수분 섭취와 보습 관리, 잊지 마세요! 저장해두세요 🔖"
+
+--- 정보카드 포인트 스타일 ---
+- 각 포인트 앞에 어울리는 이모지 1개 (예: 🔬 연구, 💡 팁, ⚡ 효과, 🎯 핵심)
+- 소제목은 임팩트 있게 (예: "하루 3세트면 충분", "물 마시면 효과 2배")
+- 설명은 구체적 수치·연구 기반 (예: "임상 87% 개선", "8주 후 효과 확인")
 
 다음 JSON 형식으로만 응답 (다른 텍스트 없이):
 {{
-    "hook_line1": "메인 후킹 문구 첫줄 (16자 이내)",
-    "hook_line2": "메인 후킹 문구 둘째줄 (16자 이내)",
-    "info_title": "정보 카드 제목 (20자 이내, 예: '써마지 전에 꼭 알아야 할 3가지')",
+    "hook_line1": "메인 후킹 문구 첫줄 (15자 이내, 공감·상황 설정)",
+    "hook_line2": "메인 후킹 문구 둘째줄 (15자 이내, 반전·해답 암시)",
+    "info_title": "정보 카드 제목 (20자 이내, 예: '몰랐으면 후회할 레이저 제모 3가지')",
     "points": [
-        {{"num": "01", "title": "소제목 (10자 이내)", "desc": "연구/논문/학회 기반 핵심 사실 (28자 이내)"}},
-        {{"num": "02", "title": "소제목 (10자 이내)", "desc": "연구/논문/학회 기반 핵심 사실 (28자 이내)"}},
-        {{"num": "03", "title": "소제목 (10자 이내)", "desc": "연구/논문/학회 기반 핵심 사실 (28자 이내)"}}
+        {{"emoji": "🔬", "title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}},
+        {{"emoji": "💡", "title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}},
+        {{"emoji": "⚡", "title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}}
     ],
     "source": "출처 기관명 (예: 대한피부과학회, 보건복지부, Journal of Dermatology)",
-    "caption": "바비톡+뉴닉 스타일 캡션. 이모지 포함 정보성 본문 3문장 + 빈줄 + 해시태그 7개"
+    "caption": "바비톡+강남언니+뉴닉 스타일 캡션. 이모지 포함 정보성 본문 3문장 + 빈줄 + 해시태그 8개"
 }}"""
 
     message = client.messages.create(
@@ -175,11 +184,9 @@ def create_main_image(content, bg_url=None):
 
     draw = ImageDraw.Draw(canvas)
 
-    # 브랜드명 (좌상단)
-    draw.text((52, 52), "내스타일", font=fonts["brand"], fill=(255, 255, 255, 220))
-
-    # 슬라이드 표시 (우상단)
-    draw.text((W-52, 52), "1 / 2", font=fonts["source"], fill=(255, 255, 255, 180), anchor="ra")
+    # 브랜드명 (좌상단) — 반투명 필 배경
+    brand_draw = ImageDraw.Draw(canvas)
+    brand_draw.text((52, 52), "내스타일", font=fonts["brand"], fill=(255, 255, 255, 220))
 
     # 후킹 문구 2줄
     line1 = content.get("hook_line1", "")
@@ -201,50 +208,87 @@ def create_main_image(content, bg_url=None):
     return img_bytes
 
 
+def draw_rounded_rect(draw, xy, radius, fill):
+    x0, y0, x1, y1 = xy
+    draw.rectangle([x0 + radius, y0, x1 - radius, y1], fill=fill)
+    draw.rectangle([x0, y0 + radius, x1, y1 - radius], fill=fill)
+    draw.ellipse([x0, y0, x0 + radius*2, y0 + radius*2], fill=fill)
+    draw.ellipse([x1 - radius*2, y0, x1, y0 + radius*2], fill=fill)
+    draw.ellipse([x0, y1 - radius*2, x0 + radius*2, y1], fill=fill)
+    draw.ellipse([x1 - radius*2, y1 - radius*2, x1, y1], fill=fill)
+
+
 def create_info_image(content):
-    """슬라이드 2: 정보성 카드뉴스 (연구/논문 기반)"""
+    """슬라이드 2: 바비톡/강남언니 스타일 정보 카드"""
     W, H = 1080, 1080
     fonts = load_fonts()
-    ACCENT = (75, 55, 110)   # 딥 퍼플
-    BG = (248, 246, 252)
 
-    canvas = Image.new("RGB", (W, H), BG)
+    PURPLE_DARK  = (62,  42, 100)   # 진한 퍼플
+    PURPLE_MID   = (108, 78, 162)   # 중간 퍼플
+    PURPLE_LIGHT = (235, 228, 255)  # 연한 라벤더
+    WHITE        = (255, 255, 255)
+    TEXT_DARK    = (30,  22,  55)
+    TEXT_GRAY    = (110, 100, 135)
+    CARD_BG      = (252, 250, 255)
+
+    # 배경: 연한 라벤더 그라데이션
+    canvas = Image.new("RGB", (W, H), (245, 240, 255))
     draw = ImageDraw.Draw(canvas)
 
-    # 상단 컬러 바
-    draw.rectangle([(0, 0), (W, 170)], fill=ACCENT)
+    # 배경 장식 원 (우상단)
+    draw.ellipse([(780, -120), (1180, 280)], fill=(220, 210, 248))
+    # 배경 장식 원 (좌하단)
+    draw.ellipse([(-100, 800), (300, 1200)], fill=(215, 205, 245))
 
-    # 슬라이드 번호
-    draw.text((W-52, 52), "2 / 2", font=fonts["source"], fill=(255, 255, 255, 180), anchor="ra")
+    # 상단 헤더 바
+    draw.rectangle([(0, 0), (W, 190)], fill=PURPLE_DARK)
+
+    # 헤더 장식 — 반투명 원
+    for cx, cy, r, a in [(900, 0, 200, 25), (200, 190, 130, 20)]:
+        circ = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        cd = ImageDraw.Draw(circ)
+        cd.ellipse([(cx-r, cy-r), (cx+r, cy+r)], fill=(255, 255, 255, a))
+        canvas.paste(Image.alpha_composite(canvas.convert("RGBA"), circ).convert("RGB"), (0, 0))
+        draw = ImageDraw.Draw(canvas)
 
     # 제목
     title = content.get("info_title", "핵심 정보")
-    draw.text((W//2, 85), title, font=fonts["info_title"], fill=(255, 255, 255), anchor="mm")
+    draw.text((W//2, 95), title, font=fonts["info_title"], fill=WHITE, anchor="mm")
 
-    # 포인트 3개
-    y = 230
-    for point in content.get("points", []):
-        # 번호 원
-        draw.ellipse([(55, y), (120, y+65)], fill=ACCENT)
-        draw.text((88, y+33), point["num"], font=fonts["point_num"], fill=(255, 255, 255), anchor="mm")
+    # 포인트 3개 카드
+    card_top = 220
+    card_h   = 220
+    gap      = 24
+
+    for i, point in enumerate(content.get("points", [])[:3]):
+        cy = card_top + i * (card_h + gap)
+        # 카드 배경 (둥근 사각형)
+        draw_rounded_rect(draw, (55, cy, W-55, cy + card_h), radius=22, fill=CARD_BG)
+
+        # 왼쪽 색 강조 바
+        draw.rectangle([(55, cy), (75, cy + card_h)], fill=PURPLE_MID)
+        draw_rounded_rect(draw, (55, cy, 75, cy + card_h), radius=10, fill=PURPLE_MID)
+
+        # 이모지 배경 원
+        ex, ey = 120, cy + card_h//2
+        draw.ellipse([(ex-38, ey-38), (ex+38, ey+38)], fill=PURPLE_LIGHT)
+
+        # 이모지 텍스트
+        emoji = point.get("emoji", "✅")
+        draw.text((ex, ey), emoji, font=fonts["point_num"], fill=PURPLE_DARK, anchor="mm")
 
         # 소제목
-        draw.text((148, y+4), point["title"], font=fonts["point_title"], fill=(30, 25, 45))
+        draw.text((180, cy + 55), point.get("title", ""), font=fonts["point_title"], fill=TEXT_DARK)
 
-        # 설명
-        draw.text((148, y+50), point["desc"], font=fonts["point_desc"], fill=(90, 85, 105))
+        # 설명 (자동 줄바꿈)
+        desc = point.get("desc", "")
+        draw.text((180, cy + 108), desc, font=fonts["point_desc"], fill=TEXT_GRAY)
 
-        # 구분선
-        draw.line([(55, y+120), (W-55, y+120)], fill=(210, 205, 225), width=2)
-        y += 200
-
-    # 출처
-    source = content.get("source", "")
-    draw.text((W//2, H-110), f"📌 출처: {source}", font=fonts["source"], fill=(120, 110, 140), anchor="mm")
-
-    # 하단 브랜드 바
-    draw.rectangle([(0, H-80), (W, H)], fill=ACCENT)
-    draw.text((W//2, H-40), "내스타일  |  @hehe_kr", font=fonts["brand"], fill=(255, 255, 255), anchor="mm")
+    # 출처 칩
+    source_text = f"📌 출처: {content.get('source', '')}"
+    chip_y = card_top + 3 * (card_h + gap) + 28
+    draw_rounded_rect(draw, (55, chip_y, W-55, chip_y + 60), radius=14, fill=PURPLE_LIGHT)
+    draw.text((W//2, chip_y + 30), source_text, font=fonts["source"], fill=PURPLE_DARK, anchor="mm")
 
     img_bytes = io.BytesIO()
     canvas.save(img_bytes, format="PNG")
