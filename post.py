@@ -250,19 +250,33 @@ def upload_image_to_repo(img_bytes):
 
 
 def post_to_buffer(caption, channel_id, image_url):
-    """Buffer REST API v1으로 큐에 추가"""
-    url = "https://api.bufferapp.com/1/updates/create.json"
-    data = {
-        "access_token": BUFFER_API_KEY,
-        "profile_ids[]": channel_id,
-        "text": caption,
-        "media[photo]": image_url,
-        "media[thumbnail]": image_url,
-    }
-    r = requests.post(url, data=data)
+    """Buffer GraphQL API로 큐에 추가"""
+    safe_caption = caption.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    query = f'''
+    mutation {{
+      createPost(input: {{
+        text: "{safe_caption}"
+        channelId: "{channel_id}"
+        schedulingType: automatic
+        mode: addToQueue
+        assets: [{{ image: {{ url: "{image_url}" }} }}]
+      }}) {{
+        ... on PostActionSuccess {{ post {{ id }} }}
+        ... on MutationError {{ message }}
+      }}
+    }}'''
+    r = requests.post(
+        "https://api.buffer.com",
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {BUFFER_API_KEY}"},
+        json={"query": query}
+    )
     print(f"Buffer 응답 코드: {r.status_code}")
-    print(f"Buffer 응답: {r.text[:300]}")
-    return r.status_code == 200
+    print(f"Buffer 응답: {r.text[:500]}")
+    if not r.ok:
+        return False
+    result = r.json()
+    create_result = result.get("data", {}).get("createPost", {}) or {}
+    return "post" in create_result
 
 
 def main():
