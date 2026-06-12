@@ -28,12 +28,12 @@ TOPICS = [
 ]
 
 UNSPLASH_KEYWORDS = {
-    "레이저제모": "man portrait skin",
-    "피부시술": "man face skincare",
-    "운동": "man gym workout",
-    "피부관리": "man grooming",
-    "그루밍": "man style fashion",
-    "다이어트": "man fitness healthy",
+    "레이저제모": "laser clinic skin treatment",
+    "피부시술": "dermatology clinic skincare",
+    "운동": "gym fitness workout",
+    "피부관리": "skincare beauty routine",
+    "그루밍": "men fashion style",
+    "다이어트": "healthy food diet fitness",
 }
 
 
