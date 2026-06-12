@@ -66,7 +66,6 @@ def generate_content():
   💧 시술 전 충분한 수분 섭취와 보습 관리, 잊지 마세요! 저장해두세요 🔖"
 
 --- 정보카드 포인트 스타일 ---
-- 각 포인트 앞에 어울리는 이모지 1개 (예: 🔬 연구, 💡 팁, ⚡ 효과, 🎯 핵심)
 - 소제목은 임팩트 있게 (예: "하루 3세트면 충분", "물 마시면 효과 2배")
 - 설명은 구체적 수치·연구 기반 (예: "임상 87% 개선", "8주 후 효과 확인")
 
@@ -76,9 +75,9 @@ def generate_content():
     "hook_line2": "메인 후킹 문구 둘째줄 (15자 이내, 반전·해답 암시)",
     "info_title": "정보 카드 제목 (20자 이내, 예: '몰랐으면 후회할 레이저 제모 3가지')",
     "points": [
-        {{"emoji": "🔬", "title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}},
-        {{"emoji": "💡", "title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}},
-        {{"emoji": "⚡", "title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}}
+        {{"title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}},
+        {{"title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}},
+        {{"title": "소제목 (12자 이내, 임팩트 있게)", "desc": "연구/논문 기반 핵심 사실 (30자 이내, 수치 포함)"}}
     ],
     "source": "출처 기관명 (예: 대한피부과학회, 보건복지부, Journal of Dermatology)",
     "caption": "바비톡+강남언니+뉴닉 스타일 캡션. 이모지 포함 정보성 본문 3문장 + 빈줄 + 해시태그 8개"
@@ -269,13 +268,11 @@ def create_info_image(content):
         draw.rectangle([(55, cy), (75, cy + card_h)], fill=PURPLE_MID)
         draw_rounded_rect(draw, (55, cy, 75, cy + card_h), radius=10, fill=PURPLE_MID)
 
-        # 이모지 배경 원
+        # 번호 원
         ex, ey = 120, cy + card_h//2
-        draw.ellipse([(ex-38, ey-38), (ex+38, ey+38)], fill=PURPLE_LIGHT)
-
-        # 이모지 텍스트
-        emoji = point.get("emoji", "✅")
-        draw.text((ex, ey), emoji, font=fonts["point_num"], fill=PURPLE_DARK, anchor="mm")
+        draw.ellipse([(ex-38, ey-38), (ex+38, ey+38)], fill=PURPLE_MID)
+        num_str = str(i + 1)
+        draw.text((ex, ey), num_str, font=fonts["point_num"], fill=WHITE, anchor="mm")
 
         # 소제목
         draw.text((180, cy + 55), point.get("title", ""), font=fonts["point_title"], fill=TEXT_DARK)
@@ -285,7 +282,7 @@ def create_info_image(content):
         draw.text((180, cy + 108), desc, font=fonts["point_desc"], fill=TEXT_GRAY)
 
     # 출처 칩
-    source_text = f"📌 출처: {content.get('source', '')}"
+    source_text = f"출처: {content.get('source', '')}"
     chip_y = card_top + 3 * (card_h + gap) + 28
     draw_rounded_rect(draw, (55, chip_y, W-55, chip_y + 60), radius=14, fill=PURPLE_LIGHT)
     draw.text((W//2, chip_y + 30), source_text, font=fonts["source"], fill=PURPLE_DARK, anchor="mm")
