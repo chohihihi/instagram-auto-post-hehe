@@ -215,9 +215,12 @@ def create_image(content):
 def gql(query):
     r = requests.post(BUFFER_API, headers=BUFFER_HEADERS, json={"query": query})
     print(f"Buffer 응답 코드: {r.status_code}")
+    if not r.ok:
+        print(f"Buffer 에러 응답: {r.text}")
+        r.raise_for_status()
     r.raise_for_status()
     result = r.json()
-    if "errors" in result:
+    if "errors" in result: 
         print(f"GraphQL 에러: {result['errors']}")
     return result
 
