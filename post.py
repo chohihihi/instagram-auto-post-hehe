@@ -226,16 +226,8 @@ def gql(query):
 
 
 def get_instagram_channel_id():
-    orgs = gql("query { organizations { id name } }")
-    org_id = orgs["data"]["organizations"][0]["id"]
-    print(f"Organization: {orgs['data']['organizations'][0]['name']}")
-
-    channels = gql(f'''
-    query {{
-      channels(input: {{ organizationId: "{org_id}" }}) {{
-        id name service
-      }}
-    }}''')["data"]["channels"]
+    result = gql("query { channels { id name service } }")
+    channels = result["data"]["channels"]
 
     for ch in channels:
         print(f"채널 발견: {ch['name']} ({ch['service']})")
