@@ -28,12 +28,12 @@ TOPICS = [
 ]
 
 UNSPLASH_KEYWORDS = {
-    "레이저제모": "men skincare clinic laser treatment",
-    "피부시술": "men skincare clinic dermatology",
-    "운동": "men workout fitness gym",
-    "피부관리": "men skincare grooming",
-    "그루밍": "men grooming style fashion",
-    "다이어트": "men healthy diet fitness body",
+    "레이저제모": "man portrait skin",
+    "피부시술": "man face skincare",
+    "운동": "man gym workout",
+    "피부관리": "man grooming",
+    "그루밍": "man style fashion",
+    "다이어트": "man fitness healthy",
 }
 
 
@@ -293,31 +293,19 @@ def create_info_image(content):
     return img_bytes
 
 
-def upload_image_to_repo(img_bytes, filename):
-    api_url = f"https://api.github.com/repos/{REPO}/contents/{filename}"
-    r = requests.put(
-        api_url,
-        headers={
-            "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
-            "Accept": "application/vnd.github+json",
-        },
-        json={
-            "message": f"Add {filename}",
-            "content": base64.b64encode(img_bytes.getvalue()).decode(),
-            "branch": BRANCH,
-        },
+def upload_image_to_imgur(img_bytes):
+    r = requests.post(
+        "https://api.imgur.com/3/image",
+        headers={"Authorization": "Client-ID 546c25a59c58ad7"},
+        data={"image": base64.b64encode(img_bytes.getvalue()).decode(), "type": "base64"},
+        timeout=30,
     )
-    if r.status_code not in (200, 201):
-        print(f"이미지 커밋 실패: {r.status_code} - {r.text[:200]}")
-        return None
-
-    raw_url = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}/{filename}"
-    for _ in range(10):
-        if requests.head(raw_url).status_code == 200:
-            print(f"이미지 URL 확인: {raw_url}")
-            return raw_url
-        time.sleep(3)
-    print("이미지 URL 확인 실패")
+    print(f"Imgur 응답: {r.status_code}")
+    if r.status_code == 200:
+        url = r.json()["data"]["link"]
+        print(f"Imgur URL: {url}")
+        return url
+    print(f"Imgur 실패: {r.text[:200]}")
     return None
 
 
@@ -369,8 +357,8 @@ def main():
     print("이미지 생성 완료")
 
     print("이미지 업로드 중...")
-    url1 = upload_image_to_repo(main_img, f"images/{ts}_1.png")
-    url2 = upload_image_to_repo(info_img, f"images/{ts}_2.png")
+    url1 = upload_image_to_imgur(main_img)
+    url2 = upload_image_to_imgur(info_img)
 
     if not url1 or not url2:
         print("이미지 업로드 실패")
