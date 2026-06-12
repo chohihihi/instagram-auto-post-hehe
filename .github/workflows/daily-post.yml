@@ -2,11 +2,8 @@ name: Daily Instagram Post
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    - cron: '0 0 * * *'  # 매일 오전 9시 KST (UTC 0시)
+  workflow_dispatch:  # 수동 실행 가능
 
 jobs:
   post:
@@ -29,6 +26,5 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
         run: python post.py
