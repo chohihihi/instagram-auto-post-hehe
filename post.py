@@ -11,15 +11,12 @@ import io
 
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 BUFFER_API_KEY = os.environ["BUFFER_API_KEY"].strip()
+UNSPLASH_ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY", "")
 
 BUFFER_API = "https://api.buffer.com"
 REPO = os.environ.get("GITHUB_REPOSITORY", "chohihihi/instagram-auto-post-hehe")
 BRANCH = "main"
-
-BUFFER_HEADERS = {
-    "Content-Type": "application/json",
-    "Authorization": f"Bearer {BUFFER_API_KEY}",
-}
+CHANNEL_ID = "6a2a25e38f1d11f9b2742181"
 
 TOPICS = [
     {"type": "피부시술", "detail": "리프팅, 보톡스, 필러, 써마지, 실리프팅, 레이저 등 피부과 시술"},
@@ -29,38 +26,56 @@ TOPICS = [
     {"type": "자기관리", "detail": "2030 자기관리 루틴, 멘탈관리, 라이프스타일, 식단"},
 ]
 
+UNSPLASH_KEYWORDS = {
+    "피부시술": "beauty clinic skincare treatment",
+    "운동": "workout fitness gym woman",
+    "데이트": "couple lifestyle date",
+    "피부관리": "skincare morning routine beauty",
+    "자기관리": "self care wellness lifestyle woman",
+}
+
 
 def generate_content():
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     topic = random.choice(TOPICS)
-    use_character = random.random() < 0.2  # 20% 확률로 캐릭터 변주
 
-    prompt = f"""인스타그램 계정 babitalk.official 스타일로 2030 자기관리에 관심 있는 남성을 타겟으로 한 콘텐츠를 만들어주세요.
+    prompt = f"""인스타그램 카드뉴스 콘텐츠를 만들어주세요. 타겟: 2030 자기관리에 관심 있는 여성
 
 주제: {topic['type']} - {topic['detail']}
-스타일: {'캐릭터 밈 (캐릭터 표정/상황으로 공감 유발)' if use_character else '강아지/동물 밈 짤 스타일 (귀여운 짤 + 공감 후킹 문구)'}
 
-바비톡 썸네일 문구 스타일 예시:
+--- 후킹 문구 스타일 (바비톡 썸네일 참고) ---
+- 궁금증/반전/공감을 유발하는 질문형
 - "써마지 받기 전, 왜 물부터 마셔야 할까?"
 - "실리프팅, 다 녹으면 전보다 더 처질까?"
 - "필터랑 실물 갭 크다는 말 당신의 반응은?"
 - "유형별 시술을 대하는 속마음, 번역해 봤더니..."
 
-규칙:
-- hook_line1/2는 두 줄로 쪼개서 자연스럽게 이어지는 하나의 문장/질문
-- 첫 줄은 상황이나 키워드 제시, 둘째 줄은 질문이나 반전으로 끝내기
-- 캡션은 바비톡처럼 이모지를 문장 앞에 붙이는 스타일, 정보성 2-3문장 후 해시태그
+--- 캡션 스타일 (바비톡 + 뉴닉 참고) ---
+- 이모지를 문장 앞에 붙이는 스타일 (💉🔥💧✨🧬)
+- 어렵지 않게 정보를 풀어쓰는 뉴닉체 (예: "~거든요", "~이에요", "~한다는 사실!")
+- 마지막에 행동 유도 ("저장해두세요 🔖", "알고 계셨나요?")
+- 바비톡 예시 캡션:
+  "💉 써마지·울쎄라 같은 고주파 리프팅은 피부 속 깊은 곳에 열에너지를 전달해 조직 수축을 일으켜요
+  피부 속 물 분자들이 고주파 에너지에 반응해 열이 만들어지고, 이 열에너지가 리프팅 효과를 주는 방식이에요 🔥
+  고주파 리프팅 시술 전에는 충분한 수분 섭취와 보습 관리, 잊지 마세요!"
 
-다음 JSON 형식으로만 응답해주세요 (다른 텍스트 없이):
+다음 JSON 형식으로만 응답 (다른 텍스트 없이):
 {{
-    "hook_line1": "후킹 문구 첫째줄 (16자 이내)",
-    "hook_line2": "후킹 문구 둘째줄 (16자 이내)",
-    "caption": "인스타그램 캡션. 이모지 활용한 바비톡 스타일 본문 2-3문장 + 빈줄 + 해시태그 6-8개"
+    "hook_line1": "메인 후킹 문구 첫줄 (16자 이내)",
+    "hook_line2": "메인 후킹 문구 둘째줄 (16자 이내)",
+    "info_title": "정보 카드 제목 (20자 이내, 예: '써마지 전에 꼭 알아야 할 3가지')",
+    "points": [
+        {{"num": "01", "title": "소제목 (10자 이내)", "desc": "연구/논문/학회 기반 핵심 사실 (28자 이내)"}},
+        {{"num": "02", "title": "소제목 (10자 이내)", "desc": "연구/논문/학회 기반 핵심 사실 (28자 이내)"}},
+        {{"num": "03", "title": "소제목 (10자 이내)", "desc": "연구/논문/학회 기반 핵심 사실 (28자 이내)"}}
+    ],
+    "source": "출처 기관명 (예: 대한피부과학회, 보건복지부, Journal of Dermatology)",
+    "caption": "바비톡+뉴닉 스타일 캡션. 이모지 포함 정보성 본문 3문장 + 빈줄 + 해시태그 7개"
 }}"""
 
     message = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=1024,
+        max_tokens=1500,
         messages=[{"role": "user", "content": prompt}]
     )
 
@@ -68,49 +83,28 @@ def generate_content():
     start = text.find('{')
     end = text.rfind('}') + 1
     parsed = json.loads(text[start:end])
-    parsed["use_character"] = use_character  # 코드에서 직접 결정
+    parsed["topic"] = topic["type"]
     return parsed
 
 
-def hex_to_rgb(hex_color):
-    hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-
-
-MEME_SUBREDDITS = [
-    "aww", "rarepuppers", "AnimalsBeingDerps",
-    "WhatsWrongWithYourDog", "dogmemes", "catmemes",
-    "animalsbeingbros", "AnimalsBeingGeniuses",
-]
-
-def fetch_reddit_meme_image():
-    """Reddit 서브레딧에서 랜덤 밈 이미지 URL 반환"""
-    subreddit = random.choice(MEME_SUBREDDITS)
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-    }
+def fetch_unsplash_image(topic):
+    keyword = UNSPLASH_KEYWORDS.get(topic, "lifestyle wellness")
     try:
-        url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=50&raw_json=1"
-        r = requests.get(url, headers=headers, timeout=15)
-        print(f"Reddit r/{subreddit} 응답: {r.status_code}")
-        if r.status_code != 200:
-            print(f"Reddit 응답 내용: {r.text[:200]}")
-            return None
-        posts = r.json()["data"]["children"]
-        image_posts = [
-            p["data"]["url"] for p in posts
-            if p["data"].get("url", "").lower().endswith((".jpg", ".jpeg", ".png"))
-            and not p["data"].get("is_self", True)
-            and not p["data"].get("over_18", False)
-        ]
-        print(f"Reddit 이미지 포스트 수: {len(image_posts)}")
-        if image_posts:
-            chosen = random.choice(image_posts)
-            print(f"Reddit 밈 사용: {chosen}")
-            return chosen
+        r = requests.get(
+            "https://api.unsplash.com/photos/random",
+            headers={"Authorization": f"Client-ID {UNSPLASH_ACCESS_KEY}"},
+            params={"query": keyword, "orientation": "squarish"},
+            timeout=10
+        )
+        print(f"Unsplash 응답: {r.status_code} (키워드: {keyword})")
+        if r.status_code == 200:
+            url = r.json()["urls"]["regular"]
+            print(f"Unsplash 이미지: {url}")
+            return url
+        else:
+            print(f"Unsplash 실패 내용: {r.text[:200]}")
     except Exception as e:
-        print(f"Reddit fetch 실패 ({subreddit}): {e}")
+        print(f"Unsplash fetch 실패: {e}")
     return None
 
 
@@ -121,7 +115,6 @@ def download_image(url):
 
 
 def center_crop(img, size=1080):
-    """정사각형 center crop"""
     w, h = img.size
     scale = max(size / w, size / h)
     img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
@@ -131,83 +124,74 @@ def center_crop(img, size=1080):
     return img.crop((left, top, left + size, top + size))
 
 
-def create_image(content):
-    width, height = 1080, 1080
-    use_character = content.get("use_character", False)
-
-    # --- 배경 이미지 준비 ---
-    bg_img = None
-    if use_character:
-        # character/ 폴더가 있으면 거기서, 없으면 dog.ceo 폴백
-        api_url = f"https://api.github.com/repos/{REPO}/contents/character"
-        r = requests.get(api_url, headers={
-            "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
-            "Accept": "application/vnd.github+json",
-        })
-        files = [f for f in (r.json() if r.status_code == 200 else [])
-                 if f["name"].lower().endswith((".jpg", ".jpeg", ".png", ".webp"))]
-        if files:
-            chosen = random.choice(files)
-            raw_url = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}/character/{chosen['name']}"
-            try:
-                bg_img = center_crop(download_image(raw_url))
-            except Exception as e:
-                print(f"캐릭터 이미지 로드 실패: {e}")
-
-    if bg_img is None:
-        # Reddit 밈 이미지 자동 fetch
-        meme_url = fetch_reddit_meme_image()
-        if meme_url:
-            try:
-                bg_img = center_crop(download_image(meme_url))
-            except Exception as e:
-                print(f"Reddit 이미지 로드 실패: {e}")
-
-    # 캔버스 (이미지 없을 때 연보라 기본 배경)
-    if bg_img:
-        canvas = bg_img.convert("RGBA")
-    else:
-        canvas = Image.new("RGBA", (width, height), (230, 220, 245, 255))
-
-    draw = ImageDraw.Draw(canvas)
-
-    # --- 하단 그라데이션 오버레이 ---
-    gradient_h = 460
-    gradient_layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    grad_draw = ImageDraw.Draw(gradient_layer)
-    for i in range(gradient_h):
-        alpha = int(200 * (i / gradient_h) ** 1.6)
-        y = height - gradient_h + i
-        grad_draw.rectangle([(0, y), (width, y + 1)], fill=(0, 0, 0, alpha))
-    canvas = Image.alpha_composite(canvas, gradient_layer)
-    draw = ImageDraw.Draw(canvas)
-
-    # --- 폰트 ---
+def load_fonts():
     try:
         bold = "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
         regular = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
-        font_hook = ImageFont.truetype(bold, 78)
-        font_brand = ImageFont.truetype(bold, 34)
+        return {
+            "hook":        ImageFont.truetype(bold, 76),
+            "brand":       ImageFont.truetype(bold, 34),
+            "info_title":  ImageFont.truetype(bold, 54),
+            "point_num":   ImageFont.truetype(bold, 40),
+            "point_title": ImageFont.truetype(bold, 38),
+            "point_desc":  ImageFont.truetype(regular, 30),
+            "source":      ImageFont.truetype(regular, 24),
+        }
     except Exception:
-        font_hook = font_brand = ImageFont.load_default()
+        d = ImageFont.load_default()
+        return {k: d for k in ["hook","brand","info_title","point_num","point_title","point_desc","source"]}
 
-    # --- 브랜드명 (좌상단) ---
-    draw.text((52, 52), "내스타일", font=font_brand, fill=(255, 255, 255, 210))
 
-    # --- 후킹 문구 2줄 (하단) ---
+def create_main_image(content, bg_url=None):
+    """슬라이드 1: Unsplash 사진 + 어두운 오버레이 + 흰색 한글 후킹 문구"""
+    W, H = 1080, 1080
+    fonts = load_fonts()
+
+    # 배경
+    if bg_url:
+        try:
+            bg = center_crop(download_image(bg_url))
+            canvas = bg.convert("RGBA")
+        except Exception as e:
+            print(f"배경 로드 실패: {e}")
+            canvas = Image.new("RGBA", (W, H), (30, 30, 40, 255))
+    else:
+        canvas = Image.new("RGBA", (W, H), (30, 30, 40, 255))
+
+    # 전체 어둡게 오버레이 (사진이 잘 보이되 텍스트가 읽히도록)
+    dark = Image.new("RGBA", (W, H), (0, 0, 0, 110))
+    canvas = Image.alpha_composite(canvas, dark)
+
+    # 하단 강한 그라데이션 (텍스트 가독성)
+    grad = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(grad)
+    for i in range(550):
+        a = int(200 * (i / 550) ** 1.3)
+        y = H - 550 + i
+        gd.rectangle([(0, y), (W, y+1)], fill=(0, 0, 0, a))
+    canvas = Image.alpha_composite(canvas, grad)
+
+    draw = ImageDraw.Draw(canvas)
+
+    # 브랜드명 (좌상단)
+    draw.text((52, 52), "내스타일", font=fonts["brand"], fill=(255, 255, 255, 220))
+
+    # 슬라이드 표시 (우상단)
+    draw.text((W-52, 52), "1 / 2", font=fonts["source"], fill=(255, 255, 255, 180), anchor="ra")
+
+    # 후킹 문구 2줄
     line1 = content.get("hook_line1", "")
     line2 = content.get("hook_line2", "")
-    text_y = height - 270
+    ty = H - 290
 
-    # 그림자
-    shadow_offset = 4
-    draw.text((50 + shadow_offset, text_y + shadow_offset), line1,
-              font=font_hook, fill=(0, 0, 0, 160))
-    draw.text((50 + shadow_offset, text_y + 95 + shadow_offset), line2,
-              font=font_hook, fill=(0, 0, 0, 160))
-    # 본문
-    draw.text((50, text_y), line1, font=font_hook, fill=(255, 255, 255, 255))
-    draw.text((50, text_y + 95), line2, font=font_hook, fill=(255, 255, 255, 255))
+    # 텍스트 그림자
+    for dx, dy in [(5, 5), (-5, 5), (5, -5), (-5, -5)]:
+        draw.text((50+dx, ty+dy),     line1, font=fonts["hook"], fill=(0, 0, 0, 140))
+        draw.text((50+dx, ty+100+dy), line2, font=fonts["hook"], fill=(0, 0, 0, 140))
+
+    # 흰색 텍스트
+    draw.text((50, ty),     line1, font=fonts["hook"], fill=(255, 255, 255))
+    draw.text((50, ty+100), line2, font=fonts["hook"], fill=(255, 255, 255))
 
     img_bytes = io.BytesIO()
     canvas.convert("RGB").save(img_bytes, format="PNG")
@@ -215,16 +199,59 @@ def create_image(content):
     return img_bytes
 
 
-CHANNEL_ID = "6a2a25e38f1d11f9b2742181"
+def create_info_image(content):
+    """슬라이드 2: 정보성 카드뉴스 (연구/논문 기반)"""
+    W, H = 1080, 1080
+    fonts = load_fonts()
+    ACCENT = (75, 55, 110)   # 딥 퍼플
+    BG = (248, 246, 252)
 
-def get_instagram_channel_id():
-    return CHANNEL_ID
+    canvas = Image.new("RGB", (W, H), BG)
+    draw = ImageDraw.Draw(canvas)
+
+    # 상단 컬러 바
+    draw.rectangle([(0, 0), (W, 170)], fill=ACCENT)
+
+    # 슬라이드 번호
+    draw.text((W-52, 52), "2 / 2", font=fonts["source"], fill=(255, 255, 255, 180), anchor="ra")
+
+    # 제목
+    title = content.get("info_title", "핵심 정보")
+    draw.text((W//2, 85), title, font=fonts["info_title"], fill=(255, 255, 255), anchor="mm")
+
+    # 포인트 3개
+    y = 230
+    for point in content.get("points", []):
+        # 번호 원
+        draw.ellipse([(55, y), (120, y+65)], fill=ACCENT)
+        draw.text((88, y+33), point["num"], font=fonts["point_num"], fill=(255, 255, 255), anchor="mm")
+
+        # 소제목
+        draw.text((148, y+4), point["title"], font=fonts["point_title"], fill=(30, 25, 45))
+
+        # 설명
+        draw.text((148, y+50), point["desc"], font=fonts["point_desc"], fill=(90, 85, 105))
+
+        # 구분선
+        draw.line([(55, y+120), (W-55, y+120)], fill=(210, 205, 225), width=2)
+        y += 200
+
+    # 출처
+    source = content.get("source", "")
+    draw.text((W//2, H-110), f"📌 출처: {source}", font=fonts["source"], fill=(120, 110, 140), anchor="mm")
+
+    # 하단 브랜드 바
+    draw.rectangle([(0, H-80), (W, H)], fill=ACCENT)
+    draw.text((W//2, H-40), "내스타일  |  @hehe_kr", font=fonts["brand"], fill=(255, 255, 255), anchor="mm")
+
+    img_bytes = io.BytesIO()
+    canvas.save(img_bytes, format="PNG")
+    img_bytes.seek(0)
+    return img_bytes
 
 
-def upload_image_to_repo(img_bytes):
-    filename = f"images/{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+def upload_image_to_repo(img_bytes, filename):
     api_url = f"https://api.github.com/repos/{REPO}/contents/{filename}"
-
     r = requests.put(
         api_url,
         headers={
@@ -238,37 +265,38 @@ def upload_image_to_repo(img_bytes):
         },
     )
     if r.status_code not in (200, 201):
-        print(f"이미지 커밋 실패: {r.status_code} - {r.text}")
+        print(f"이미지 커밋 실패: {r.status_code} - {r.text[:200]}")
         return None
 
     raw_url = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}/{filename}"
     for _ in range(10):
         if requests.head(raw_url).status_code == 200:
-            print(f"이미지 URL 확인 완료: {raw_url}")
+            print(f"이미지 URL 확인: {raw_url}")
             return raw_url
         time.sleep(3)
-
-    print("이미지 URL 확인 실패 (시간 초과)")
+    print("이미지 URL 확인 실패")
     return None
 
 
-def post_to_buffer(caption, channel_id, image_url):
-    """Buffer GraphQL API로 큐에 추가"""
+def post_to_buffer(caption, image_urls):
     safe_caption = caption.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    assets = ", ".join([f'{{ image: {{ url: "{url}" }} }}' for url in image_urls])
+
     query = f'''
     mutation {{
       createPost(input: {{
         text: "{safe_caption}"
-        channelId: "{channel_id}"
+        channelId: "{CHANNEL_ID}"
         schedulingType: automatic
         mode: addToQueue
         metadata: {{ instagram: {{ type: post, shouldShareToFeed: true }} }}
-        assets: [{{ image: {{ url: "{image_url}" }} }}]
+        assets: [{assets}]
       }}) {{
         ... on PostActionSuccess {{ post {{ id }} }}
         ... on MutationError {{ message }}
       }}
     }}'''
+
     r = requests.post(
         "https://api.buffer.com",
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {BUFFER_API_KEY}"},
@@ -288,26 +316,27 @@ def main():
     content = generate_content()
     print(f"생성된 문구: {content['hook_line1']} / {content['hook_line2']}")
 
+    print("Unsplash 이미지 가져오는 중...")
+    bg_url = fetch_unsplash_image(content.get("topic", "자기관리"))
+
     print("이미지 생성 중...")
-    img_bytes = create_image(content)
+    ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+    main_img = create_main_image(content, bg_url)
+    info_img = create_info_image(content)
     print("이미지 생성 완료")
 
     print("이미지 업로드 중...")
-    image_url = upload_image_to_repo(img_bytes)
-    if not image_url:
+    url1 = upload_image_to_repo(main_img, f"images/{ts}_1.png")
+    url2 = upload_image_to_repo(info_img, f"images/{ts}_2.png")
+
+    if not url1 or not url2:
         print("이미지 업로드 실패")
         return
 
-    print("Buffer 채널 확인 중...")
-    channel_id = get_instagram_channel_id()
-    if not channel_id:
-        print("Instagram 채널을 찾을 수 없습니다")
-        return
-
-    print("Buffer에 즉시 발행 중...")
-    success = post_to_buffer(content["caption"], channel_id, image_url)
+    print("Buffer에 발행 중...")
+    success = post_to_buffer(content["caption"], [url1, url2])
     if success:
-        print("포스팅 완료! (약 2분 후 인스타그램에 게시됩니다)")
+        print("포스팅 완료! (카드뉴스 2장)")
     else:
         print("포스팅 실패")
 
