@@ -19,19 +19,21 @@ BRANCH = "main"
 CHANNEL_ID = "6a2a25e38f1d11f9b2742181"
 
 TOPICS = [
-    {"type": "피부시술", "detail": "리프팅, 보톡스, 필러, 써마지, 실리프팅, 레이저 등 피부과 시술"},
-    {"type": "운동", "detail": "헬스, 필라테스, 요가, 홈트, 다이어트 운동 루틴"},
-    {"type": "데이트", "detail": "데이트 코스, 연애 꿀팁, 커플 일상, 소개팅"},
-    {"type": "피부관리", "detail": "기초케어, 선크림, 보습, 각질, 모공, 화이트닝"},
-    {"type": "자기관리", "detail": "2030 자기관리 루틴, 멘탈관리, 라이프스타일, 식단"},
+    {"type": "레이저제모", "detail": "남성 레이저 제모 (수염, 등, 팔다리, 겨드랑이, 브라질리언), 효과, 횟수, 주의사항"},
+    {"type": "피부시술", "detail": "남성 피부과 시술 (리프팅, 보톡스, 흉터, 모공, 레이저, 색소)"},
+    {"type": "운동", "detail": "남성 헬스 루틴, 벌크업, 다이어트, 홈트, 자세 교정"},
+    {"type": "피부관리", "detail": "남성 기초케어, 선크림, 보습, 각질, 모공 관리"},
+    {"type": "그루밍", "detail": "남성 헤어스타일, 수염 관리, 향수, 패션 코디, 자기관리 루틴"},
+    {"type": "다이어트", "detail": "남성 식단 관리, 단백질 섭취, 체중 감량, 간헐적 단식"},
 ]
 
 UNSPLASH_KEYWORDS = {
-    "피부시술": "beauty clinic skincare treatment",
-    "운동": "workout fitness gym woman",
-    "데이트": "couple lifestyle date",
-    "피부관리": "skincare morning routine beauty",
-    "자기관리": "self care wellness lifestyle woman",
+    "레이저제모": "men skincare clinic laser treatment",
+    "피부시술": "men skincare clinic dermatology",
+    "운동": "men workout fitness gym",
+    "피부관리": "men skincare grooming",
+    "그루밍": "men grooming style fashion",
+    "다이어트": "men healthy diet fitness body",
 }
 
 
@@ -39,7 +41,7 @@ def generate_content():
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     topic = random.choice(TOPICS)
 
-    prompt = f"""인스타그램 카드뉴스 콘텐츠를 만들어주세요. 타겟: 2030 자기관리에 관심 있는 여성
+    prompt = f"""인스타그램 카드뉴스 콘텐츠를 만들어주세요. 타겟: 자기관리에 관심 있는 20-35세 한국 남성
 
 주제: {topic['type']} - {topic['detail']}
 
