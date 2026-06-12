@@ -55,8 +55,7 @@ def generate_content():
 {{
     "hook_line1": "후킹 문구 첫째줄 (16자 이내)",
     "hook_line2": "후킹 문구 둘째줄 (16자 이내)",
-    "caption": "인스타그램 캡션. 이모지 활용한 바비톡 스타일 본문 2-3문장 + 빈줄 + 해시태그 6-8개",
-    "use_character": {str(use_character).lower()}
+    "caption": "인스타그램 캡션. 이모지 활용한 바비톡 스타일 본문 2-3문장 + 빈줄 + 해시태그 6-8개"
 }}"""
 
     message = client.messages.create(
@@ -68,7 +67,9 @@ def generate_content():
     text = message.content[0].text
     start = text.find('{')
     end = text.rfind('}') + 1
-    return json.loads(text[start:end])
+    parsed = json.loads(text[start:end])
+    parsed["use_character"] = use_character  # 코드에서 직접 결정
+    return parsed
 
 
 def hex_to_rgb(hex_color):
