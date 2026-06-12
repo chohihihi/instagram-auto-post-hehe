@@ -212,22 +212,10 @@ def create_image(content):
     return img_bytes
 
 
-def gql(query):
-    r = requests.post(BUFFER_API, headers=BUFFER_HEADERS, json={"query": query})
-    print(f"Buffer 응답 코드: {r.status_code}")
-    if not r.ok:
-        print(f"Buffer 에러 응답: {r.text}")
-        r.raise_for_status()
-    result = r.json()
-    if "errors" in result:
-        print(f"GraphQL 에러: {result['errors']}")
-    return result
-
+CHANNEL_ID = "6a2a25e38f1d11f9b2742181"
 
 def get_instagram_channel_id():
-    channel_id = "6a2a25e38f1d11f9b2742181"
-    print(f"채널 ID 사용: {channel_id}")
-    return channel_id
+    return CHANNEL_ID
 
 
 def upload_image_to_repo(img_bytes):
@@ -262,27 +250,19 @@ def upload_image_to_repo(img_bytes):
 
 
 def post_to_buffer(caption, channel_id, image_url):
-    """Buffer 큐에 추가"""
-    safe_caption = (
-        caption.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
-    )
-    query = f'''
-    mutation {{
-      createPost(input: {{
-        text: "{safe_caption}"
-        channelId: "{channel_id}"
-        schedulingType: queue
-        mode: NEXT
-        assets: [{{ image: {{ url: "{image_url}" }} }}]
-      }}) {{
-        ... on PostActionSuccess {{ post {{ id }} }}
-        ... on MutationError {{ message }}
-      }}
-    }}'''
-    result = gql(query)
-    create_result = result.get("data", {}).get("createPost", {}) or {}
-    print(f"포스팅 결과: {create_result}")
-    return "post" in create_result
+    """Buffer REST API v1으로 큐에 추가"""
+    url = "https://api.bufferapp.com/1/updates/create.json"
+    data = {
+        "access_token": BUFFER_API_KEY,
+        "profile_ids[]": channel_id,
+        "text": caption,
+        "media[photo]": image_url,
+        "media[thumbnail]": image_url,
+    }
+    r = requests.post(url, data=data)
+    print(f"Buffer 응답 코드: {r.status_code}")
+    print(f"Buffer 응답: {r.text[:300]}")
+    return r.status_code == 200
 
 
 def main():
