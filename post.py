@@ -226,14 +226,9 @@ def gql(query):
 
 
 def get_instagram_channel_id():
-    result = gql("query { channels { id name service } }")
-    channels = result["data"]["channels"]
-
-    for ch in channels:
-        print(f"채널 발견: {ch['name']} ({ch['service']})")
-        if ch["service"].lower() == "instagram":
-            return ch["id"]
-    return None
+    channel_id = "6a2a25e38f1d11f9b2742181"
+    print(f"채널 ID 사용: {channel_id}")
+    return channel_id
 
 
 def upload_image_to_repo(img_bytes):
