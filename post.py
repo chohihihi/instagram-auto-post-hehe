@@ -218,9 +218,8 @@ def gql(query):
     if not r.ok:
         print(f"Buffer 에러 응답: {r.text}")
         r.raise_for_status()
-    r.raise_for_status()
     result = r.json()
-    if "errors" in result: 
+    if "errors" in result:
         print(f"GraphQL 에러: {result['errors']}")
     return result
 
@@ -263,13 +262,11 @@ def upload_image_to_repo(img_bytes):
 
 
 def post_to_buffer(caption, channel_id, image_url):
-    """즉시 발행: 지금+2분으로 customScheduled 설정"""
-    due_at = (datetime.now(timezone.utc) + timedelta(minutes=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
-
+    """Buffer 큐에 추가"""
     safe_caption = (
         caption.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
     )
-       query = f'''
+    query = f'''
     mutation {{
       createPost(input: {{
         text: "{safe_caption}"
