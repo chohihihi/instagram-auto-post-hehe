@@ -84,27 +84,30 @@ MEME_SUBREDDITS = [
 ]
 
 def fetch_reddit_meme_image():
-    """Reddit 서브레딧에서 랜덤 밈 이미지 URL 반환 (API 키 불필요)"""
+    """Reddit 서브레딧에서 랜덤 밈 이미지 URL 반환"""
     subreddit = random.choice(MEME_SUBREDDITS)
-    headers = {"User-Agent": "instagram-autopost/1.0"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
     try:
-        r = requests.get(
-            f"https://www.reddit.com/r/{subreddit}/hot.json?limit=50",
-            headers=headers, timeout=10
-        )
+        url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=50&raw_json=1"
+        r = requests.get(url, headers=headers, timeout=15)
+        print(f"Reddit r/{subreddit} 응답: {r.status_code}")
         if r.status_code != 200:
+            print(f"Reddit 응답 내용: {r.text[:200]}")
             return None
         posts = r.json()["data"]["children"]
-        # 이미지 포스트만 필터 (jpg/png, 외부링크 제외)
         image_posts = [
             p["data"]["url"] for p in posts
             if p["data"].get("url", "").lower().endswith((".jpg", ".jpeg", ".png"))
             and not p["data"].get("is_self", True)
             and not p["data"].get("over_18", False)
         ]
+        print(f"Reddit 이미지 포스트 수: {len(image_posts)}")
         if image_posts:
             chosen = random.choice(image_posts)
-            print(f"Reddit 밈 사용: r/{subreddit} — {chosen}")
+            print(f"Reddit 밈 사용: {chosen}")
             return chosen
     except Exception as e:
         print(f"Reddit fetch 실패 ({subreddit}): {e}")
