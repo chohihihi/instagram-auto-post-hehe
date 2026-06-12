@@ -269,16 +269,16 @@ def post_to_buffer(caption, channel_id, image_url):
     safe_caption = (
         caption.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
     )
-    query = f'''
+       query = f'''
     mutation {{
       createPost(input: {{
         text: "{safe_caption}"
         channelId: "{channel_id}"
-        schedulingType: customScheduled
-        dueAt: "{due_at}"
+        schedulingType: queue
+        mode: NEXT
         assets: [{{ image: {{ url: "{image_url}" }} }}]
       }}) {{
-        ... on PostActionSuccess {{ post {{ id dueAt }} }}
+        ... on PostActionSuccess {{ post {{ id }} }}
         ... on MutationError {{ message }}
       }}
     }}'''
