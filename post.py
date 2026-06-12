@@ -259,7 +259,7 @@ def post_to_buffer(caption, channel_id, image_url):
         channelId: "{channel_id}"
         schedulingType: automatic
         mode: addToQueue
-        instagramOptions: {{ type: post }}  
+        metadata: {{ instagram: {{ type: post }} }}
         assets: [{{ image: {{ url: "{image_url}" }} }}]
       }}) {{
         ... on PostActionSuccess {{ post {{ id }} }}
