@@ -176,6 +176,8 @@ def F():
 def draw_tight(draw, x, y, text, font, fill, spacing=-1):
     cx = x
     for ch in text:
+        if ch == '\n':
+            continue  # 줄바꿈 문자는 단일행 렌더러에서 스킵
         draw.text((cx, y), ch, font=font, fill=fill)
         cx += draw.textlength(ch, font=font) + spacing
 
@@ -278,10 +280,11 @@ def generate_content() -> dict:
 1. 톤앤매너: 2030 남성 타깃, 트렌디하고 세련된 매거진 어조 (~해라, ~하자 같은 단호하면서도 힙한 문체)
 2. MBTI 반영: {mbti}의 성격적 특성을 콘텐츠 내용이나 서두에 반드시 녹여내라.
 3. 레이아웃 한계: 카드 한 장당 타이틀 1줄, 본문 텍스트는 이모지 포함 최대 3줄(명사형/단답형)로 짧게 끊어라.
-4. 아래 JSON 포맷만 반환해라. 다른 사설 없이 JSON만:
+4. slide_1의 body는 반드시 줄바꿈 없이 한 줄로만 작성해라.
+5. 아래 JSON 포맷만 반환해라. 다른 사설 없이 JSON만:
 
 {{
-  "slide_1": {{"title": "1장 제목 (후킹성 강한 타이틀, 20자 이내)", "body": "짧은 인트로 또는 MBTI 언급 문구"}},
+  "slide_1": {{"title": "1장 제목 (후킹성 강한 타이틀, 20자 이내)", "body": "짧은 인트로 또는 MBTI 언급 문구 (줄바꿈 없이 한 줄)"}},
   "slide_2": {{"title": "2장 소제목", "body": "📌 핵심 내용 1\\n💡 핵심 내용 2\\n✅ 핵심 내용 3"}},
   "slide_3": {{"title": "3장 소제목", "body": "📌 핵심 내용 1\\n💡 핵심 내용 2\\n✅ 핵심 내용 3"}},
   "slide_4": {{"title": "4장 소제목", "body": "📌 핵심 내용 1\\n💡 핵심 내용 2\\n✅ 핵심 내용 3"}},
@@ -328,7 +331,7 @@ def card1_shellness(content: dict) -> io.BytesIO:
 
     # 메인 카피 (slide_1 title)
     title = content.get("slide_1", {}).get("title", "")
-    lines = title.split() 
+    lines = title.split()
     # 10자 이상이면 절반씩 나눠서 2줄로
     if len(title) > 12:
         mid = len(lines) // 2
@@ -341,8 +344,8 @@ def card1_shellness(content: dict) -> io.BytesIO:
         draw_tight(draw, 50, y, line, Fnt["title_lg"], (255,255,255), spacing=-2)
         y += 94
 
-    # slide_1 body (인트로)
-    intro = content.get("slide_1", {}).get("body", "")
+    # slide_1 body (인트로) — 첫 줄만 사용
+    intro = content.get("slide_1", {}).get("body", "").split("\n")[0]
     if intro:
         draw_tight(draw, 50, y + 10, intro, Fnt["body_sm"], (255,255,255,180), spacing=-1)
 
@@ -520,7 +523,7 @@ def card1_viral(content: dict) -> io.BytesIO:
     hook2 = " ".join(words[mid:])
 
     draw_tight(draw, 50, H-248, hook1, Fnt["title_lg"], (255,255,255), spacing=-2)
-    draw_tight(draw, 50, H-140, hook2 if hook2 else content.get("slide_1", {}).get("body", "")[:20],
+    draw_tight(draw, 50, H-140, hook2 if hook2 else content.get("slide_1", {}).get("body", "").split("\n")[0][:20],
                Fnt["title_lg"], (255,230,40), spacing=-2)
 
     out = io.BytesIO()
@@ -554,7 +557,7 @@ def post(caption: str, urls: list) -> bool:
       schedulingType:automatic mode:addToQueue
       metadata:{{instagram:{{type:post,shouldShareToFeed:true}}}}
       assets:[{assets}]
-    }}){{...on PostActionSuccess{{post{{id}}}}...on MutationError{{message}}}}}}'''
+    }}){{...on PostActionSuccess{{post{{id}}}}...on MutationError{{message}}}}}}}'''
     r = requests.post(
         "https://api.buffer.com",
         headers={"Content-Type":"application/json","Authorization":f"Bearer {BUFFER_API_KEY}"},
