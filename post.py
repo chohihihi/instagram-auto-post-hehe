@@ -14,10 +14,8 @@ PEXELS_API_KEY    = os.environ["PEXEL_API"]
 UNSPLASH_KEY      = os.environ.get("UNSPLASH_ACCESS_KEY", "")
 CHANNEL_ID        = "6a2a25e38f1d11f9b2742181"
 
-# 날짜 기준 스타일 로테이션 (짝수일 = viral, 홀수일 = shellness)
 TODAY_STYLE = "shellness" if datetime.now().day % 2 == 1 else "viral"
 
-# ── 100개 콘텐츠 시드풀 ───────────────────────────────────────────
 CONTENT_POOL = [
     "카카오톡 선물하기로 주기 좋은 2만 원대 남성 그루밍 템",
     "센스 있다는 소리 듣는 남자친구 생일 선물 베스트 5",
@@ -43,7 +41,7 @@ CONTENT_POOL = [
     "감성 가득한 가성비 여자친구 생일 선물 아이디어",
     "여친 감동 자극: 센스 있는 레터링/각인 선물 아이템",
     "주말 호캉스 갈 때 여자친구 몰래 준비하기 좋은 힐링 기프트",
-    "여성들이 직접 말한 '남친에게 받고 감동했던 선물' 리스트",
+    "여성들이 직접 말한 남친에게 받고 감동했던 선물 리스트",
     "가장 섬세하고 디테일한 남성 MBTI 순위 TOP 5",
     "MBTI별 남성이 스트레스를 해소하는 자기관리 루틴",
     "F형 남친과 T형 남친의 피부 고민 상담 대처법 차이",
@@ -121,7 +119,6 @@ CONTENT_POOL = [
     "피부 장벽 강화를 위한 먹는 세라마이드와 콜라겐의 효과",
 ]
 
-# ── MBTI 페르소나 정의 ────────────────────────────────────────────
 MBTI_PERSONAS = {
     "ISTJ": {"characteristic": "철저한 계획파, 가성비와 효율 중심", "tone": "이성적이고 수치화된 가이드"},
     "ISFJ": {"characteristic": "안정 추구, 꼼꼼하고 배려 깊음", "tone": "친절하고 실용적인 루틴 제안"},
@@ -141,11 +138,10 @@ MBTI_PERSONAS = {
     "ENTJ": {"characteristic": "성공 지향, 프로페셔널 이미지 관리", "tone": "자신감 있고 전략적인 어조"},
 }
 
-HIGHLIGHT_BLUE = (59, 130, 246)   # #3B82F6
+HIGHLIGHT_BLUE = (59, 130, 246)
 LETTER_SPACING = -1
 
 
-# ── 폰트 ─────────────────────────────────────────────────────────
 def F():
     try:
         B  = "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
@@ -172,18 +168,24 @@ def F():
                                 "hl","product","price","desc","label","brand","caption"]}
 
 
-# ── 자간 tight 텍스트 렌더 헬퍼 ──────────────────────────────────
+def strip_emoji(text: str) -> str:
+    """NanumGothic이 지원하지 않는 이모지(비BMP 문자) 제거"""
+    return "".join(ch for ch in text if ord(ch) <= 0xFFFF)
+
+
 def draw_tight(draw, x, y, text, font, fill, spacing=-1):
     cx = x
-    for ch in text:
+    safe = strip_emoji(text)
+    for ch in safe:
         if ch == '\n':
-            continue  # 줄바꿈 문자는 단일행 렌더러에서 스킵
+            continue
         draw.text((cx, y), ch, font=font, fill=fill)
         cx += draw.textlength(ch, font=font) + spacing
 
 
 def wrap(draw, text, font, max_w, spacing=-1):
-    words, lines, line = text.split(), [], ""
+    safe = strip_emoji(text)
+    words, lines, line = safe.split(), [], ""
     for w in words:
         test = (line + " " + w).strip()
         est = sum(draw.textlength(c, font=font) + spacing for c in test)
@@ -198,7 +200,6 @@ def wrap(draw, text, font, max_w, spacing=-1):
     return lines
 
 
-# ── 이미지 소스: Pexels + Unsplash 랜덤 믹스 ────────────────────
 def fetch_image(pexels_kw: str, unsplash_kw: str, square=True) -> Image.Image | None:
     source = random.choice(["pexels", "unsplash"])
     img = _pexels(pexels_kw, square) if source == "pexels" else _unsplash(unsplash_kw)
@@ -261,7 +262,6 @@ def crop_rect(img: Image.Image, tw=1060, th=560) -> Image.Image:
     return img.crop(((iw-tw)//2, (ih-th)//2, (iw+tw)//2, (ih+th)//2))
 
 
-# ── 1. Claude 콘텐츠 생성 (새 마스터 프롬프트 적용) ──────────────
 def generate_content() -> dict:
     topic = random.choice(CONTENT_POOL)
     mbti  = random.choice(list(MBTI_PERSONAS.keys()))
@@ -269,29 +269,32 @@ def generate_content() -> dict:
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""[System Role & Context]
-너는 팔로워 50만 명을 보유한 남성 그루밍·라이프스타일 매거진의 총괄 에디터이자, 타깃 심리를 정확히 꿰뚫는 SNS 마케터다. 아래 제공하는 데이터와 규칙을 완벽히 숙지하고 가독성이 극대화된 카드뉴스(5장 분량) 대본을 생성해라.
+너는 팔로워 50만 명을 보유한 남성 그루밍·라이프스타일 매거진의 총괄 에디터야.
+말투는 반드시 '뉴닉체'를 사용해: 짧고 친근하게, ~거든요 / ~이에요 / ~해요 / ~인데요 같은 부드러운 구어체, 숫자와 팩트를 앞세우고, 공감 유도형 문장 사용. 딱딱한 나열보다는 대화하듯 써.
 
 [Input Data]
 오늘의 킬러 주제: {topic}
-오늘의 타깃 페르소나 (MBTI): {mbti} — {persona['characteristic']}
+오늘의 타깃 페르소나 (MBTI): {mbti} - {persona['characteristic']}
 톤앤매너 지침: {persona['tone']}
 
 [제약 조건 및 출력 규칙]
-1. 톤앤매너: 2030 남성 타깃, 트렌디하고 세련된 매거진 어조 (~해라, ~하자 같은 단호하면서도 힙한 문체)
-2. MBTI 반영: {mbti}의 성격적 특성을 콘텐츠 내용이나 서두에 반드시 녹여내라.
-3. 레이아웃 한계: 카드 한 장당 타이틀 1줄, 본문 텍스트는 이모지 포함 최대 3줄(명사형/단답형)로 짧게 끊어라.
-4. slide_1의 body는 반드시 줄바꿈 없이 한 줄로만 작성해라.
-5. 아래 JSON 포맷만 반환해라. 다른 사설 없이 JSON만:
+1. 말투: 뉴닉체 (친근한 구어체, 팩트+공감, 짧고 리듬감 있게)
+2. MBTI 반영: {mbti}의 특성을 서두나 내용에 자연스럽게 녹여내기
+3. 가격대: 제품 추천 시 반드시 가격대(예: 1.5만원대 / 3-5만원 / 10만원 이하)를 포함할 것
+4. 카드 한 장당 타이틀 1줄(20자 이내), 본문 최대 3줄(단답형/명사형)
+5. slide_1의 body는 줄바꿈 없이 한 줄로만 작성
+6. 이모지는 절대 사용하지 말 것 (폰트 미지원으로 깨짐)
+7. 아래 JSON 포맷만 반환. 다른 사설 없이 JSON만:
 
 {{
-  "slide_1": {{"title": "1장 제목 (후킹성 강한 타이틀, 20자 이내)", "body": "짧은 인트로 또는 MBTI 언급 문구 (줄바꿈 없이 한 줄)"}},
-  "slide_2": {{"title": "2장 소제목", "body": "📌 핵심 내용 1\\n💡 핵심 내용 2\\n✅ 핵심 내용 3"}},
-  "slide_3": {{"title": "3장 소제목", "body": "📌 핵심 내용 1\\n💡 핵심 내용 2\\n✅ 핵심 내용 3"}},
-  "slide_4": {{"title": "4장 소제목", "body": "📌 핵심 내용 1\\n💡 핵심 내용 2\\n✅ 핵심 내용 3"}},
-  "slide_5": {{"title": "저장하고 오늘 밤부터 시작.", "body": "🔥 이 정보가 도움 되었다면?\\n❤️ 좋아요 | 📝 댓글 | 📂 저장하기\\n더 많은 그루밍 팁은 @naestyle_official 에서!"}},
-  "instagram_caption": "인스타그램 업로드용 캡션. 이모지 포함 3문장 + 빈줄 + 해시태그 8개",
-  "pexels_keyword": "영문 3단어 이내 배경 이미지 검색어",
-  "unsplash_keyword": "영문 3단어 이내 배경 이미지 검색어"
+  "slide_1": {{"title": "후킹 타이틀 (20자 이내)", "body": "MBTI 또는 공감 유도 한 줄 인트로"}},
+  "slide_2": {{"title": "소제목", "body": "핵심 내용 1 (가격대 포함)\\n핵심 내용 2\\n핵심 내용 3"}},
+  "slide_3": {{"title": "소제목", "body": "핵심 내용 1\\n핵심 내용 2\\n핵심 내용 3"}},
+  "slide_4": {{"title": "소제목", "body": "핵심 내용 1\\n핵심 내용 2\\n핵심 내용 3"}},
+  "slide_5": {{"title": "저장하고 오늘 밤부터 시작.", "body": "도움이 됐다면 저장 필수거든요\\n좋아요 + 댓글로 응원해줘요\\n더 많은 정보는 @hehe_kr 에서!"}},
+  "instagram_caption": "뉴닉체 캡션 3문장 (가격대 언급 포함) + 빈줄 + 해시태그 8개",
+  "pexels_keyword": "영문 3단어 이내 이미지 검색어",
+  "unsplash_keyword": "영문 3단어 이내 이미지 검색어"
 }}"""
 
     msg = client.messages.create(
@@ -305,11 +308,10 @@ def generate_content() -> dict:
     return parsed
 
 
-# ── 2. 카드 1: Shellness 썸네일 ───────────────────────────────────
 def card1_shellness(content: dict) -> io.BytesIO:
     W, H = 1080, 1080
     Fnt = F()
-    pexels_kw  = content.get("pexels_keyword", "men grooming minimal clean")
+    pexels_kw   = content.get("pexels_keyword", "men grooming minimal clean")
     unsplash_kw = content.get("unsplash_keyword", "men skincare minimal")
 
     bg = fetch_image(pexels_kw, unsplash_kw)
@@ -351,11 +353,10 @@ def card1_shellness(content: dict) -> io.BytesIO:
     return out
 
 
-# ── 3. 카드 2·3: 본문 슬라이드 (블루 하이라이트) ─────────────────
 def card_body(content: dict, idx: int) -> io.BytesIO:
     W, H = 1080, 1080
     Fnt = F()
-    pexels_kw  = content.get("pexels_keyword", "men lifestyle minimal")
+    pexels_kw   = content.get("pexels_keyword", "men lifestyle minimal")
     unsplash_kw = content.get("unsplash_keyword", "men minimal aesthetic")
 
     slide_key = f"slide_{idx + 2}"
@@ -363,10 +364,8 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
 
     BG = (244, 242, 239)
     canvas = Image.new("RGB", (W, H), BG)
-    draw = ImageDraw.Draw(canvas)
 
     FRAME_H = 500
-
     main_img = fetch_image(pexels_kw, unsplash_kw)
     if main_img:
         frame_bg = crop_rect(main_img.convert("RGB"), W, FRAME_H)
@@ -381,12 +380,11 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
     draw_tight(draw, 50, FRAME_H-42, caption_text, Fnt["caption"], (255,255,255), spacing=-1)
 
     draw.rectangle([(0,0),(320,52)], fill=(15,14,12))
-    draw_tight(draw, 18, 14, "내스타일 | GROOMING", Fnt["label"], (255,255,255), spacing=0)
+    draw_tight(draw, 18, 14, "hehe | GROOMING", Fnt["label"], (255,255,255), spacing=0)
 
     TEXT_Y = FRAME_H + 40
     slide_title = slide.get("title", "")
     draw_tight(draw, 50, TEXT_Y, slide_title, Fnt["product"], (15,14,12), spacing=-2)
-
     draw.rectangle([(50, TEXT_Y+58),(W-50, TEXT_Y+59)], fill=(204,200,196))
 
     body_raw = slide.get("body", "")
@@ -399,10 +397,11 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
             by += 16
             continue
         if i == 0 and not hl_done:
-            hl_w = sum(draw.textlength(c, font=Fnt["hl"])-1 for c in line) + 24
+            clean = strip_emoji(line)
+            hl_w = sum(draw.textlength(c, font=Fnt["hl"])-1 for c in clean) + 24
             hl_w = min(hl_w, W - 100)
             draw.rectangle([(48, by-4),(48+hl_w, by+44)], fill=HIGHLIGHT_BLUE)
-            draw_tight(draw, 56, by, line, Fnt["hl"], (255,255,255), spacing=-1)
+            draw_tight(draw, 56, by, clean, Fnt["hl"], (255,255,255), spacing=-1)
             by += 60
             hl_done = True
         else:
@@ -423,11 +422,10 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
     return out
 
 
-# ── 4. 카드 4: 클로징 (slide_5 활용) ────────────────────────────
 def card4_closing(content: dict) -> io.BytesIO:
     W, H = 1080, 1080
     Fnt = F()
-    pexels_kw  = content.get("pexels_keyword", "men portrait dark dramatic")
+    pexels_kw   = content.get("pexels_keyword", "men portrait dark dramatic")
     unsplash_kw = content.get("unsplash_keyword", "men minimal dark")
 
     bg = fetch_image(pexels_kw, unsplash_kw)
@@ -442,31 +440,31 @@ def card4_closing(content: dict) -> io.BytesIO:
     closing_title = slide5.get("title", "저장하고 오늘 밤부터 시작.")
     closing_body  = slide5.get("body", "")
 
-    lines = closing_title.split(" ")
-    mid = max(1, len(lines) // 2)
-    line_groups = [" ".join(lines[:mid]), " ".join(lines[mid:])] if len(lines) > 2 else [closing_title]
+    words = closing_title.split(" ")
+    mid = max(1, len(words) // 2)
+    line_groups = [" ".join(words[:mid]), " ".join(words[mid:])] if len(words) > 2 else [closing_title]
 
     y = H//2 - 160
     for ln in line_groups:
-        lw = sum(draw.textlength(c, font=Fnt["title_lg"])-2 for c in ln)
+        lw = sum(draw.textlength(c, font=Fnt["title_lg"])-2 for c in strip_emoji(ln))
         draw_tight(draw, (W-lw)//2, y, ln, Fnt["title_lg"], (255,255,255), spacing=-2)
         y += 96
 
     body_lines = closing_body.split("\n")
     if body_lines:
-        sub = body_lines[0]
+        sub = strip_emoji(body_lines[0])
         sw = sum(draw.textlength(c, font=Fnt["hl"])-1 for c in sub) + 28
         sx = (W-sw)//2
         draw.rectangle([(sx, y+14),(sx+sw, y+60)], fill=HIGHLIGHT_BLUE)
         draw_tight(draw, sx+14, y+14, sub, Fnt["hl"], (255,255,255), spacing=-1)
 
     if len(body_lines) > 1:
-        subsub = " | ".join(body_lines[1:])
+        subsub = " | ".join(strip_emoji(l) for l in body_lines[1:])
         ssw = sum(draw.textlength(c, font=Fnt["body_sm"])-1 for c in subsub)
         draw_tight(draw, (W-ssw)//2, y+80, subsub, Fnt["body_sm"], (255,255,255,130), spacing=-1)
 
-    bw = sum(draw.textlength(c, font=Fnt["brand"])-1 for c in "내스타일")
-    draw_tight(draw, (W-bw)//2, H-56, "내스타일", Fnt["brand"], (255,255,255,90), spacing=2)
+    bw = sum(draw.textlength(c, font=Fnt["brand"])-1 for c in "@hehe_kr")
+    draw_tight(draw, (W-bw)//2, H-56, "@hehe_kr", Fnt["brand"], (255,255,255,90), spacing=2)
 
     out = io.BytesIO()
     canvas.convert("RGB").save(out,"PNG")
@@ -474,11 +472,10 @@ def card4_closing(content: dict) -> io.BytesIO:
     return out
 
 
-# ── 5. viral 썸네일 (짝수일) ────────────────────────────────────
 def card1_viral(content: dict) -> io.BytesIO:
     W, H = 1080, 1080
     Fnt = F()
-    pexels_kw  = content.get("pexels_keyword", "men gym dark dramatic")
+    pexels_kw   = content.get("pexels_keyword", "men gym dark dramatic")
     unsplash_kw = content.get("unsplash_keyword", "men dark aesthetic")
 
     bg = fetch_image(pexels_kw, unsplash_kw)
@@ -490,8 +487,8 @@ def card1_viral(content: dict) -> io.BytesIO:
     for i in range(300):
         d.rectangle([(0,i),(W,i+1)],fill=(0,0,0,int(160*(1-i/300))))
     for i in range(440):
-        y=H-440+i
-        d.rectangle([(0,y),(W,y+1)],fill=(0,0,0,int(220*(i/440)**1.2)))
+        yy = H-440+i
+        d.rectangle([(0,yy),(W,yy+1)],fill=(0,0,0,int(220*(i/440)**1.2)))
     canvas = Image.alpha_composite(canvas, ov)
     draw = ImageDraw.Draw(canvas)
 
@@ -505,7 +502,8 @@ def card1_viral(content: dict) -> io.BytesIO:
     hook2 = " ".join(words[mid:])
 
     draw_tight(draw, 50, H-248, hook1, Fnt["title_lg"], (255,255,255), spacing=-2)
-    draw_tight(draw, 50, H-140, hook2 if hook2 else content.get("slide_1", {}).get("body", "").split("\n")[0][:20],
+    fallback = content.get("slide_1", {}).get("body", "").split("\n")[0][:20]
+    draw_tight(draw, 50, H-140, hook2 if hook2 else fallback,
                Fnt["title_lg"], (255,230,40), spacing=-2)
 
     out = io.BytesIO()
@@ -514,12 +512,11 @@ def card1_viral(content: dict) -> io.BytesIO:
     return out
 
 
-# ── Imgur 업로드 ─────────────────────────────────────────────────
 def upload(img: io.BytesIO) -> str | None:
     r = requests.post(
         "https://api.imgur.com/3/image",
         headers={"Authorization": "Client-ID 546c25a59c58ad7"},
-        data={"image": base64.b64encode(img.getvalue()).decode(),"type":"base64"},
+        data={"image": base64.b64encode(img.getvalue()).decode(), "type": "base64"},
         timeout=30,
     )
     if r.status_code == 200:
@@ -530,7 +527,6 @@ def upload(img: io.BytesIO) -> str | None:
     return None
 
 
-# ── Buffer 발행 ──────────────────────────────────────────────────
 def post(caption: str, urls: list) -> bool:
     safe   = caption.replace("\\","\\\\").replace('"','\\"').replace("\n","\\n")
     assets = ", ".join([f'{{ image: {{ url: "{u}" }} }}' for u in urls])
@@ -544,13 +540,12 @@ def post(caption: str, urls: list) -> bool:
     )
     r = requests.post(
         "https://api.buffer.com",
-        headers={"Content-Type":"application/json","Authorization":f"Bearer {BUFFER_API_KEY}"},
-        json={"query":query},
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {BUFFER_API_KEY}"},
+        json={"query": query},
     )
-    return "post" in (r.json().get("data",{}).get("createPost",{}) or {})
+    return "post" in (r.json().get("data", {}).get("createPost", {}) or {})
 
 
-# ── 메인 ─────────────────────────────────────────────────────────
 def main():
     print(f"=== {datetime.now().strftime('%m/%d')} | 스타일: {TODAY_STYLE} ===")
 
@@ -561,20 +556,16 @@ def main():
     if TODAY_STYLE == "shellness":
         print("[shellness 스타일] 카드 4장 생성...")
         c1 = card1_shellness(content)
-        c2 = card_body(content, 0)
-        c3 = card_body(content, 1)
-        c4 = card4_closing(content)
     else:
         print("[viral 스타일] 카드 4장 생성...")
         c1 = card1_viral(content)
-        c2 = card_body(content, 0)
-        c3 = card_body(content, 1)
-        c4 = card4_closing(content)
 
-    cards = [c1, c2, c3, c4]
+    c2 = card_body(content, 0)
+    c3 = card_body(content, 1)
+    c4 = card4_closing(content)
 
     print("업로드 중...")
-    urls = [u for u in [upload(c) for c in cards] if u]
+    urls = [u for u in [upload(c) for c in [c1, c2, c3, c4]] if u]
     if len(urls) < 2:
         print("업로드 실패")
         return
