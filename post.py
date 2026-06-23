@@ -325,17 +325,14 @@ def card1_shellness(content: dict) -> io.BytesIO:
     canvas = Image.alpha_composite(canvas, ov)
     draw = ImageDraw.Draw(canvas)
 
-    # MBTI 라벨
     mbti_label = f"For {content.get('mbti', '')}"
     draw_tight(draw, 54, H-460, mbti_label, Fnt["sub"], (255,255,255,120), spacing=3)
 
-    # 메인 카피 (slide_1 title)
     title = content.get("slide_1", {}).get("title", "")
-    lines = title.split()
-    # 10자 이상이면 절반씩 나눠서 2줄로
+    words = title.split()
     if len(title) > 12:
-        mid = len(lines) // 2
-        lines = [" ".join(lines[:mid]), " ".join(lines[mid:])]
+        mid = len(words) // 2
+        lines = [" ".join(words[:mid]), " ".join(words[mid:])]
     else:
         lines = [title]
 
@@ -344,7 +341,6 @@ def card1_shellness(content: dict) -> io.BytesIO:
         draw_tight(draw, 50, y, line, Fnt["title_lg"], (255,255,255), spacing=-2)
         y += 94
 
-    # slide_1 body (인트로) — 첫 줄만 사용
     intro = content.get("slide_1", {}).get("body", "").split("\n")[0]
     if intro:
         draw_tight(draw, 50, y + 10, intro, Fnt["body_sm"], (255,255,255,180), spacing=-1)
@@ -362,7 +358,7 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
     pexels_kw  = content.get("pexels_keyword", "men lifestyle minimal")
     unsplash_kw = content.get("unsplash_keyword", "men minimal aesthetic")
 
-    slide_key = f"slide_{idx + 2}"  # idx=0 → slide_2, idx=1 → slide_3
+    slide_key = f"slide_{idx + 2}"
     slide = content.get(slide_key, {"title": "", "body": ""})
 
     BG = (244, 242, 239)
@@ -371,7 +367,6 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
 
     FRAME_H = 500
 
-    # 상단 이미지
     main_img = fetch_image(pexels_kw, unsplash_kw)
     if main_img:
         frame_bg = crop_rect(main_img.convert("RGB"), W, FRAME_H)
@@ -381,24 +376,19 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
 
     draw = ImageDraw.Draw(canvas)
 
-    # 자막바
     draw.rectangle([(0, FRAME_H-56), (W, FRAME_H)], fill=(0,0,0,int(255*0.78)))
     caption_text = f"{content.get('mbti','')} | {content.get('topic_text','')[:20]}"
     draw_tight(draw, 50, FRAME_H-42, caption_text, Fnt["caption"], (255,255,255), spacing=-1)
 
-    # 채널 라벨
     draw.rectangle([(0,0),(320,52)], fill=(15,14,12))
     draw_tight(draw, 18, 14, "내스타일 | GROOMING", Fnt["label"], (255,255,255), spacing=0)
 
-    # 슬라이드 제목
     TEXT_Y = FRAME_H + 40
     slide_title = slide.get("title", "")
     draw_tight(draw, 50, TEXT_Y, slide_title, Fnt["product"], (15,14,12), spacing=-2)
 
-    # 구분선
     draw.rectangle([(50, TEXT_Y+58),(W-50, TEXT_Y+59)], fill=(204,200,196))
 
-    # 본문 라인들 (\n 으로 구분)
     body_raw = slide.get("body", "")
     body_lines = body_raw.split("\n")
     by = TEXT_Y + 80
@@ -408,7 +398,6 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
         if not line.strip():
             by += 16
             continue
-        # 첫 번째 라인을 블루 하이라이트로 강조
         if i == 0 and not hl_done:
             hl_w = sum(draw.textlength(c, font=Fnt["hl"])-1 for c in line) + 24
             hl_w = min(hl_w, W - 100)
@@ -425,7 +414,6 @@ def card_body(content: dict, idx: int) -> io.BytesIO:
         if by > H - 70:
             break
 
-    # 스와이프 안내
     draw_tight(draw, 50, H-48, "← 스와이프해서 더 보기",
                Fnt["caption"], (154,150,144), spacing=-1)
 
@@ -454,7 +442,6 @@ def card4_closing(content: dict) -> io.BytesIO:
     closing_title = slide5.get("title", "저장하고 오늘 밤부터 시작.")
     closing_body  = slide5.get("body", "")
 
-    # 메인 카피
     lines = closing_title.split(" ")
     mid = max(1, len(lines) // 2)
     line_groups = [" ".join(lines[:mid]), " ".join(lines[mid:])] if len(lines) > 2 else [closing_title]
@@ -465,7 +452,6 @@ def card4_closing(content: dict) -> io.BytesIO:
         draw_tight(draw, (W-lw)//2, y, ln, Fnt["title_lg"], (255,255,255), spacing=-2)
         y += 96
 
-    # 블루 하이라이트 (closing body 첫 줄)
     body_lines = closing_body.split("\n")
     if body_lines:
         sub = body_lines[0]
@@ -474,13 +460,11 @@ def card4_closing(content: dict) -> io.BytesIO:
         draw.rectangle([(sx, y+14),(sx+sw, y+60)], fill=HIGHLIGHT_BLUE)
         draw_tight(draw, sx+14, y+14, sub, Fnt["hl"], (255,255,255), spacing=-1)
 
-    # 서브 (closing body 두 번째 줄 이하)
     if len(body_lines) > 1:
         subsub = " | ".join(body_lines[1:])
         ssw = sum(draw.textlength(c, font=Fnt["body_sm"])-1 for c in subsub)
         draw_tight(draw, (W-ssw)//2, y+80, subsub, Fnt["body_sm"], (255,255,255,130), spacing=-1)
 
-    # 브랜드
     bw = sum(draw.textlength(c, font=Fnt["brand"])-1 for c in "내스타일")
     draw_tight(draw, (W-bw)//2, H-56, "내스타일", Fnt["brand"], (255,255,255,90), spacing=2)
 
@@ -511,11 +495,9 @@ def card1_viral(content: dict) -> io.BytesIO:
     canvas = Image.alpha_composite(canvas, ov)
     draw = ImageDraw.Draw(canvas)
 
-    # 빨간 라벨
     draw.rectangle([(44,38),(400,104)], fill=(210,25,25))
     draw_tight(draw, 60, 52, f"{content.get('mbti','')} 필독", Fnt["sub"], (255,255,255), spacing=-1)
 
-    # slide_1 title 후킹 문구
     title = content.get("slide_1", {}).get("title", "")
     words = title.split()
     mid = max(1, len(words) // 2)
@@ -552,12 +534,14 @@ def upload(img: io.BytesIO) -> str | None:
 def post(caption: str, urls: list) -> bool:
     safe   = caption.replace("\\","\\\\").replace('"','\\"').replace("\n","\\n")
     assets = ", ".join([f'{{ image: {{ url: "{u}" }} }}' for u in urls])
-    query  = f'''mutation{{createPost(input:{{
-      text:"{safe}" channelId:"{CHANNEL_ID}"
-      schedulingType:automatic mode:addToQueue
-      metadata:{{instagram:{{type:post,shouldShareToFeed:true}}}}
-      assets:[{assets}]
-    }}){{...on PostActionSuccess{{post{{id}}}}...on MutationError{{message}}}}}}}'''
+    query  = (
+        "mutation{createPost(input:{"
+        f'text:"{safe}" channelId:"{CHANNEL_ID}"'
+        " schedulingType:automatic mode:addToQueue"
+        " metadata:{instagram:{type:post,shouldShareToFeed:true}}"
+        f" assets:[{assets}]"
+        "}){...on PostActionSuccess{post{id}}...on MutationError{message}}}"
+    )
     r = requests.post(
         "https://api.buffer.com",
         headers={"Content-Type":"application/json","Authorization":f"Bearer {BUFFER_API_KEY}"},
